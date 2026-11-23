@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b5d63">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="国試問題集">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>看護師国試 問題集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 落ち着いた勉強の相棒。急かさず、清潔で、読みやすい。
+   IDEA: 国試のマークシートと赤シート。選択肢はマークの丸、解説は赤シートをめくるように現れる。
+   PICTURE: 問題カードそのもの。大きな丸番号の選択肢と、○×のついた解説。
+   COLOUR and TYPE: 白地、深いティール #0b5d63 が主、赤 #c1121f は×と赤シートだけ。書体は問題集PDFと同じ Klee One。
+   LAYOUT: 720px の1列。上に見出し、下に操作。スマホでは指で押しやすい44px以上のボタン。 */
+:root{--bg:#fff;--ink:#14161a;--mute:#5b6670;--line:#dde3e4;--card:#f5f8f8;--teal:#0b5d63;--tealbg:#e6f1f1;--red:#c1121f;--redbg:#fbe9ea;--d1:#3f8f52;--d2:#2a6fd6;--d3:#b9770f;--d4:#c1121f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1416;--ink:#e6eeee;--mute:#9fb0b3;--line:#24343a;--card:#131d20;--teal:#5cc2c9;--tealbg:#12292c;--red:#ff6b74;--redbg:#2c1517;--d1:#6cc483;--d2:#77a8ff;--d3:#f0b04a;--d4:#ff6b74}}
+:root[data-theme=dark]{--bg:#0d1416;--ink:#e6eeee;--mute:#9fb0b3;--line:#24343a;--card:#131d20;--teal:#5cc2c9;--tealbg:#12292c;--red:#ff6b74;--redbg:#2c1517;--d1:#6cc483;--d2:#77a8ff;--d3:#f0b04a;--d4:#ff6b74}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 'Klee One','Hiragino Maru Gothic ProN','Yu Gothic',sans-serif;overflow-x:clip;-webkit-text-size-adjust:100%}
+#app{max-width:720px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.bk{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:4px 14px}.bk summary{min-height:44px;display:flex;align-items:center;font-size:15px;cursor:pointer}.bk textarea{width:100%;min-height:90px;font:14px/1.4 monospace;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--card);color:var(--ink)}.bk .msg{font-size:14px;color:var(--teal);min-height:1.4em;margin:6px 0}
+h1{font-size:30px;line-height:1.15;margin:6px 0 4px;font-weight:600;text-wrap:balance}
+h2{font-size:21px;line-height:1.3;margin:0;font-weight:600}
+.sub{color:var(--mute);font-size:14px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.hero{background:var(--teal);color:#fff;border-radius:18px;padding:18px 18px 16px;margin:12px 0 18px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;align-items:center}
+:root[data-theme=dark] .hero{color:#062326}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .hero{color:#062326}}
+.days{font-size:46px;line-height:1;font-weight:600;grid-row:span 2}
+.days small{font-size:15px;margin-left:2px}
+.hero .t{font-size:15px;opacity:.9}.hero .n{font-size:15px}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px}
+.btn{min-height:48px;padding:10px 18px;border-radius:12px;background:var(--teal);color:var(--bg);font-weight:600}
+.btn.sec{background:var(--tealbg);color:var(--teal)}
+.btn.red{background:var(--redbg);color:var(--red)}
+.btn:disabled{opacity:.4;cursor:default}
+.list{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);min-height:64px;width:100%}
+.num{font-weight:600;color:var(--teal);font-size:16px;text-align:center;border:2px solid var(--teal);border-radius:999px;padding:2px 0}
+.nm{display:block;font-size:16px;line-height:1.35}
+.bar{display:block;height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal)}
+.pc{font-size:14px;color:var(--mute);text-align:right;white-space:nowrap}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.back{min-height:44px;padding:0 12px;border-radius:10px;background:var(--tealbg);color:var(--teal);font-size:15px;white-space:nowrap}
+.grp{margin:16px 0}
+.grp>p{margin:0 0 8px;font-size:14px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:15px}
+.chip[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.start{width:100%;margin-top:14px;font-size:18px}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--mute)}
+.d{display:inline-block;color:#fff;border-radius:6px;padding:0 7px;font-size:13px;line-height:22px}
+.d1{background:var(--d1)}.d2{background:var(--d2)}.d3{background:var(--d3)}.d4{background:var(--d4)}
+.prog{height:4px;background:var(--line);border-radius:2px;margin:6px 0 14px;overflow:hidden}.prog i{display:block;height:100%;background:var(--teal)}
+.stem{font-size:18px;line-height:1.75;margin:8px 0 14px}
+.two{display:inline-block;background:var(--redbg);color:var(--red);border-radius:6px;padding:0 8px;font-size:14px;margin-left:4px}
+.opts{display:grid;gap:10px}
+.opt{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;text-align:left;width:100%;min-height:56px;padding:10px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);font-size:17px;line-height:1.5}
+.bub{width:34px;height:34px;border-radius:50%;border:2px solid var(--mute);display:grid;place-items:center;font-size:16px;font-weight:600;color:var(--mute)}
+.opt.on{border-color:var(--teal);background:var(--tealbg)}.opt.on .bub{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.opt.ok{border-color:var(--teal);background:var(--tealbg)}.opt.ok .bub{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+.opt.ng{border-color:var(--red);background:var(--redbg)}.opt.ng .bub{background:var(--red);border-color:var(--red);color:var(--bg)}
+.opt:disabled{cursor:default}
+.res{margin-top:16px;border-radius:16px;border:1.5px solid var(--line);padding:14px 16px;animation:lift .28s ease-out}
+@keyframes lift{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.res{animation:none}}
+.verdict{font-size:22px;font-weight:600;margin:0 0 6px}
+.verdict.g{color:var(--teal)}.verdict.b{color:var(--red)}
+.ex{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.ex li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;font-size:15px;line-height:1.6}
+.ex .m{font-weight:600}.ex .o .m{color:var(--teal)}.ex .x .m{color:var(--red)}
+.ex .ot{color:var(--mute);border-bottom:1px dotted var(--line)}
+.pt{margin:10px 0 0;font-size:15px;background:var(--tealbg);border-radius:10px;padding:8px 12px}
+.nav{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.nav .btn{flex:1 1 140px}
+.score{font-size:54px;font-weight:600;line-height:1;color:var(--teal);margin:10px 0}
+.wl{list-style:none;padding:0;margin:12px 0;display:grid;gap:6px}
+.wl li{font-size:15px;border-left:3px solid var(--red);padding:2px 0 2px 10px}
+.note{font-size:13px;color:var(--mute);margin-top:22px}
+.empty{padding:24px;text-align:center;color:var(--mute)}
+@media (max-width:420px){h1{font-size:26px}.days{font-size:40px}.row{grid-template-columns:54px minmax(0,1fr) auto;gap:10px}}
+</style>
+</head>
+<body>
+<main id="app"><p class="empty">読み込み中…</p></main>
+<script>
+{
+const LV={k:'基本',n:'必修',g:'一般'},LVN={k:'基本問題',n:'必修問題',g:'一般問題'},DL=['','易','標準','やや難','難'];
+const EXAM=new Date(2027,1,14),KEY='kq1';
+const app=document.getElementById('app');
+let books=[],cache={},canSave=true,st={r:{},f:{},o:{}},S=null,cur=null;
+try{const v=JSON.parse(localStorage.getItem(KEY));if(v)st=v}catch(e){canSave=false}
+st.r=st.r||{};st.f=st.f||{};st.o=st.o||{};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){canSave=false}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const top=()=>window.scrollTo(0,0);
+const bookOf=id=>books.find(b=>id.startsWith(b.num+'-'));
+async function loadBook(num){
+  if(!cache[num]){const r=await fetch('q-'+num+'.json');if(!r.ok)throw new Error(num);cache[num]=await r.json();cache[num].forEach(q=>q.b=num)}
+  return cache[num];
+}
+function stats(num){
+  let done=0,ok=0;
+  for(const id in st.r){if(num&&!id.startsWith(num+'-'))continue;done++;ok+=st.r[id].l}
+  return {done,ok,wrong:done-ok};
+}
+function flags(){return Object.keys(st.f).filter(id=>st.f[id])}
+function units(qs){const u=[];for(const q of qs){if(q.ch&&u.length)u[u.length-1].push(q);else u.push([q])}return u}
+function pick(qs,o){
+  let u=units(qs).filter(un=>{
+    const h=un[0];
+    if(o.lv!=='all'&&h.lv!==o.lv)return false;
+    if(h.lv!=='k'&&!o.d.includes(h.d))return false;
+    if(o.f==='new')return un.some(q=>!st.r[q.id]);
+    if(o.f==='wrong')return un.some(q=>st.r[q.id]&&!st.r[q.id].l);
+    if(o.f==='flag')return un.some(q=>st.f[q.id]);
+    return true});
+  if(o.ord==='rand')shuffle(u);
+  const out=[];for(const un of u){if(o.cnt&&out.length>=o.cnt)break;out.push(...un)}
+  return out;
+}
+
+function home(){
+  cur=null;S=null;
+  const t=new Date();t.setHours(0,0,0,0);
+  const days=Math.max(0,Math.round((EXAM-t)/864e5));
+  const a=stats(),fl=flags().length;
+  app.innerHTML=`<h1>看護師国試 問題集</h1><p class="sub">全14冊・4,800問　PDFの問題集と同じ問題・同じ番号です</p>
+  <div class="hero"><div class="days">${days}<small>日</small></div><div class="t">第116回 看護師国家試験（2027年2月14日）まで</div>
+  <div class="n">解いた問題 ${a.done.toLocaleString()}問　いま正解できている問題 ${a.ok.toLocaleString()}問</div></div>
+  <div class="acts">
+    <button class="btn red" id="gw" ${a.wrong?'':'disabled'}>間違えた問題（${a.wrong}問）</button>
+    <button class="btn sec" id="gf" ${fl?'':'disabled'}>見直し印の問題（${fl}問）</button>
+  </div>
+  <div class="list">${books.map(b=>{const s=stats(b.num),p=Math.round(s.done/b.total*100);
+    return `<button class="row" data-b="${b.num}"><span class="num">${b.num}</span><span><span class="nm">${esc(b.name)}</span><span class="bar"><i style="width:${p}%"></i></span></span>
+    <span class="pc">${s.done}/${b.total}${s.done?`<br>正解 ${Math.round(s.ok/s.done*100)}%`:''}</span></button>`}).join('')}</div>
+  <details class="bk"><summary>記録のバックアップと復元</summary>
+  <p class="sub">機種変更やアプリを消す前に「コピー」を押し、出てきた文字をメモアプリなどに貼って保存してください。復元するときは、その文字を下の欄に貼って「復元」を押します。</p>
+  <div class="nav"><button class="btn sec" id="bc">記録をコピー</button><button class="btn sec" id="br">復元</button></div>
+  <p class="msg" id="bm"></p><textarea id="bt" placeholder="ここにバックアップの文字を貼る"></textarea></details>
+  <p class="note">解いた記録はこのiPhoneのこのアプリだけに保存されます。一度開けば、電波がなくても使えます。${canSave?'':'<br>この画面では記録を保存できないため、閉じると記録は消えます。'}</p>`;
+  app.querySelectorAll('.row').forEach(b=>b.onclick=()=>book(b.dataset.b));
+  document.getElementById('gw').onclick=()=>review('wrong');
+  document.getElementById('gf').onclick=()=>review('flag');
+  const bt=document.getElementById('bt'),bm=document.getElementById('bm');
+  document.getElementById('bc').onclick=async()=>{const s='KQ1:'+btoa(unescape(encodeURIComponent(JSON.stringify({r:st.r,f:st.f}))));bt.value=s;
+    try{await navigator.clipboard.writeText(s);bm.textContent='コピーしました。メモアプリなどに貼って保存してください。'}catch(e){bt.select();bm.textContent='下の欄の文字をすべて選んでコピーしてください。'}};
+  document.getElementById('br').onclick=()=>{try{const s=bt.value.trim();if(!s.startsWith('KQ1:'))throw 0;const v=JSON.parse(decodeURIComponent(escape(atob(s.slice(4)))));
+    if(!v.r||typeof v.r!=='object')throw 0;st.r=v.r;st.f=v.f||{};save();home();const k=document.querySelector('.bk');if(k)k.open=true;const m=document.getElementById('bm');if(m)m.textContent='記録を復元しました。'}
+    catch(e){bm.textContent='復元できませんでした。コピーした文字を、最初から最後まで貼り付けてください。'}};
+  top();
+}
+
+async function review(kind){
+  const ids=kind==='wrong'?Object.keys(st.r).filter(id=>!st.r[id].l):flags();
+  const nums=[...new Set(ids.map(id=>bookOf(id)?.num).filter(Boolean))];
+  app.innerHTML='<p class="empty">読み込み中…</p>';
+  try{
+    let list=[];
+    for(const b of books){if(!nums.includes(b.num))continue;list=list.concat(pick(await loadBook(b.num),{lv:'all',d:[1,2,3,4],f:kind,ord:'num',cnt:0}))}
+    start(list,kind==='wrong'?'間違えた問題':'見直し印の問題',true);
+  }catch(e){app.innerHTML='<p class="empty">問題を読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'}
+}
+
+async function book(num){
+  const b=books.find(x=>x.num===num);cur=b;
+  app.innerHTML='<p class="empty">読み込み中…</p>';
+  let qs;try{qs=await loadBook(num)}catch(e){app.innerHTML='<p class="empty">問題を読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>';return}
+  const o=Object.assign({lv:'n',d:[1,2,3,4],f:'all',ord:'num',cnt:20},st.o);
+  const chip=(k,v,label,on)=>`<button class="chip" data-k="${k}" data-v="${v}" aria-pressed="${on}">${label}</button>`;
+  const draw=()=>{
+    const s=stats(num),n=pick(qs,Object.assign({},o,{ord:'num'})).length,m=o.cnt?Math.min(o.cnt,n):n;
+    app.innerHTML=`<div class="top"><button class="back" id="bk">一覧へ</button></div>
+    <p class="meta"><span class="num" style="padding:0 10px">${b.num}</span>全${b.total}問　解いた ${s.done}問　間違い ${s.wrong}問</p>
+    <h1>${esc(b.name)}</h1>
+    <div class="grp"><p>問題の種類</p><div class="chips">${[['n','必修問題'],['g','一般問題'],['k','基本問題'],['all','すべて']].map(([v,l])=>chip('lv',v,`${l}${v!=='all'?`（${b.cnt[v]}）`:''}`,o.lv===v)).join('')}</div></div>
+    ${o.lv==='k'?'':`<div class="grp"><p>難しさ（必修・一般）</p><div class="chips">${[1,2,3,4].map(d=>chip('d',d,DL[d],o.d.includes(d))).join('')}</div></div>`}
+    <div class="grp"><p>どの問題を解くか</p><div class="chips">${[['all','すべて'],['new','まだ解いていない'],['wrong','間違えた問題'],['flag','見直し印']].map(([v,l])=>chip('f',v,l,o.f===v)).join('')}</div></div>
+    <div class="grp"><p>順番と問題数</p><div class="chips">${chip('ord','num','番号順',o.ord==='num')}${chip('ord','rand','ランダム',o.ord==='rand')}</div>
+    <div class="chips" style="margin-top:8px">${[10,20,50,0].map(c=>chip('cnt',c,c?c+'問':'全部',o.cnt===c)).join('')}</div></div>
+    <button class="btn start" id="go" ${m?'':'disabled'}>${m?`${m}問を解く`:'当てはまる問題がありません'}</button>
+    <p class="note">「前問の〜」で続く問題は、ランダムでも前の問題と一緒に出ます。</p>`;
+    document.getElementById('bk').onclick=home;
+    app.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+      const k=c.dataset.k,v=c.dataset.v;
+      if(k==='d'){const d=+v;o.d=o.d.includes(d)?o.d.filter(x=>x!==d):[...o.d,d].sort();if(!o.d.length)o.d=[d]}
+      else if(k==='cnt')o.cnt=+v;else o[k]=v;
+      st.o=o;save();draw();
+    });
+    document.getElementById('go').onclick=()=>start(pick(qs,o),`${b.num} ${b.name}`,false);
+  };
+  draw();top();
+}
+
+function start(list,title,global){
+  if(!list.length){home();return}
+  S={list,i:0,sel:[],done:false,res:[],title,global};qv();
+}
+function qv(){
+  const q=S.list[S.i],two=q.a.length>1,b=books.find(x=>x.num===q.b);
+  const opts=q.c.map((t,k)=>{const n=k+1;let c='';
+    if(S.done){if(q.a.includes(n))c='ok';else if(S.sel.includes(n))c='ng'}else if(S.sel.includes(n))c='on';
+    return `<button class="opt ${c}" data-n="${n}" ${S.done?'disabled':''}><span class="bub">${n}</span><span>${esc(t)}</span></button>`}).join('');
+  let res='';
+  if(S.done){
+    const ok=S.res[S.res.length-1].ok;
+    res=`<div class="res" id="res"><p class="verdict ${ok?'g':'b'}">${ok?'○ 正解':'× 不正解'}</p><div>正解は ${q.a.join('と')}</div>
+    <ul class="ex">${q.c.map((t,k)=>{const n=k+1,o=q.a.includes(n);return `<li class="${o?'o':'x'}"><span class="m">${n} ${o?'○':'×'}</span><span><span class="ot">${esc(t)}</span>　${esc(q.e[k])}</span></li>`}).join('')}</ul>
+    ${q.p?`<p class="pt">ポイント：${esc(q.p)}</p>`:''}
+    <div class="nav"><button class="btn sec" id="fl">${st.f[q.id]?'見直し印をはずす':'見直し印をつける'}</button><button class="btn" id="nx">${S.i+1<S.list.length?'次の問題へ':'結果を見る'}</button></div></div>`;
+  }
+  app.innerHTML=`<div class="top"><button class="back" id="qt">やめる</button><span class="sub">${esc(S.title)}</span></div>
+  <div class="meta">${S.i+1} / ${S.list.length}　${S.global?esc(b.num+' '+b.name)+'　':''}<b>${LV[q.lv]} 問${q.n}</b>${q.d?`<span class="d d${q.d}">${DL[q.d]}</span>`:''}</div>
+  <div class="prog"><i style="width:${(S.i)/S.list.length*100}%"></i></div>
+  <p class="stem">${esc(q.q)}${two&&!/2つ選べ/.test(q.q)?'<span class="two">2つ選べ</span>':''}</p>
+  <div class="opts">${opts}</div>
+  ${!S.done&&two?`<div class="nav"><button class="btn" id="ck" ${S.sel.length===2?'':'disabled'}>答え合わせ（2つ選んでください）</button></div>`:''}
+  ${res}`;
+  document.getElementById('qt').onclick=()=>finish();
+  app.querySelectorAll('.opt').forEach(el=>el.onclick=()=>{
+    if(S.done)return;const n=+el.dataset.n;
+    if(!two){S.sel=[n];grade();return}
+    S.sel=S.sel.includes(n)?S.sel.filter(x=>x!==n):(S.sel.length<2?[...S.sel,n]:S.sel);qv();
+  });
+  const ck=document.getElementById('ck');if(ck)ck.onclick=grade;
+  if(S.done){
+    document.getElementById('nx').onclick=()=>{S.i++;S.sel=[];S.done=false;if(S.i>=S.list.length)finish();else{qv();top()}};
+    document.getElementById('fl').onclick=()=>{if(st.f[q.id])delete st.f[q.id];else st.f[q.id]=1;save();qv()};
+  }
+}
+function grade(){
+  const q=S.list[S.i],ok=[...S.sel].sort().join()===[...q.a].sort().join();
+  const r=st.r[q.id]||{l:0,t:0,c:0};r.l=ok?1:0;r.t++;if(ok)r.c++;st.r[q.id]=r;save();
+  S.res.push({q,ok});S.done=true;qv();
+  const el=document.getElementById('res');if(el)el.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+}
+function finish(){
+  if(!S||!S.res.length){cur?book(cur.num):home();return}
+  const n=S.res.length,ok=S.res.filter(r=>r.ok).length,wrong=S.res.filter(r=>!r.ok).map(r=>r.q);
+  app.innerHTML=`<h2>${esc(S.title)}</h2><div class="score">${ok}<span style="font-size:24px"> / ${n}問</span></div>
+  <p class="sub">正答率 ${Math.round(ok/n*100)}%</p>
+  ${wrong.length?`<h2 style="margin-top:18px">間違えた問題</h2><ul class="wl">${wrong.map(q=>`<li>${S.global?esc(q.b)+' ':''}${LV[q.lv]} 問${q.n}：${esc(q.q.length>40?q.q.slice(0,40)+'…':q.q)}</li>`).join('')}</ul>`:'<p>全問正解です。</p>'}
+  <div class="nav">${wrong.length?'<button class="btn red" id="rw">間違えた問題をもう一度</button>':''}<button class="btn sec" id="bh">${cur?'この冊にもどる':'一覧にもどる'}</button></div>`;
+  const rw=document.getElementById('rw');
+  if(rw)rw.onclick=()=>{const g=S.global,t=S.title;const all=units(S.list).filter(u=>u.some(q=>wrong.includes(q))).flat();start(all,t,g)};
+  document.getElementById('bh').onclick=()=>cur?book(cur.num):home();
+  top();
+}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+fetch('books.json').then(r=>r.json()).then(b=>{books=b;home()}).catch(()=>{app.innerHTML='<p class="empty">問題を読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'});
+}
+</script>
+</body>
+</html>
